@@ -339,8 +339,8 @@ class OpenApiValidation
         $mediaType       = $this->getMediaType($request);
 
         // Check if request body is truly empty (no content was provided)
-        $hasRequestBody = ! empty($request->getContent());
-        if (! $hasRequestBody) {
+        $hasRequestBody = !empty($request->getContent());
+        if (!$hasRequestBody && $request->isJson()) {
             $requestBodyData = null;
         }
 
