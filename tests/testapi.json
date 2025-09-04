@@ -1,0 +1,1055 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Test API",
+        "description": "-",
+        "version": "0.1"
+    },
+    "servers": [
+        {
+            "url": "https://apitest.com"
+        }
+    ],
+    "components": {
+        "headers": {
+            "xResponseId": {
+                "required": true,
+                "schema": {
+                    "type": "integer"
+                },
+                "description": "Unique response ID"
+            },
+            "xResponseIdNotRequired": {
+                "required": false,
+                "schema": {
+                    "type": "integer"
+                },
+                "description": "Unique response ID"
+            }
+        },
+        "responses": {
+            "OkResponse": {
+                "description": "Ok",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "ok": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "ErrorResponse": {
+                "description": "Error",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string"
+                                },
+                                "errors": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "code": {
+                                                "type": "string"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "used": {
+                                                "type": "string"
+                                            },
+                                            "format": {
+                                                "type": "string"
+                                            },
+                                            "type": {
+                                                "type": "string"
+                                            },
+                                            "expected": {
+                                                "anyOf": [
+                                                    {
+                                                        "type": "integer"
+                                                    },
+                                                    {
+                                                        "type": "string"
+                                                    },
+                                                    {
+                                                        "type": "array"
+                                                    }
+                                                ]
+                                            },
+                                            "value": {
+                                                "anyOf": [
+                                                    {
+                                                        "type": "integer"
+                                                    },
+                                                    {
+                                                        "type": "string"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "schemas": {
+            "NewStudent": {
+                "type": "object",
+                "properties": {
+                    "first_name": {
+                        "type": "string",
+                        "minLength": 2
+                    },
+                    "last_name": {
+                        "type": "string",
+                        "minLength": 2
+                    },
+                    "e_mail": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "nationality": {
+                        "type": "string",
+                        "pattern": "^[A-Z]{2}$"
+                    }
+                },
+                "required": [
+                    "first_name",
+                    "last_name",
+                    "e_mail",
+                    "nationality"
+                ]
+            },
+            "Student": {
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/NewStudent"
+                    },
+                    {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "integer"
+                            }
+                        },
+                        "required": [
+                            "id"
+                        ]
+                    }
+                ]
+            }
+        }
+    },
+    "paths": {
+        "/request/body": {
+            "post": {
+                "operationId": "testRequestBody",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "foo": {
+                                        "type": "string"
+                                    },
+                                    "bar": {
+                                        "type": "integer"
+                                    },
+                                    "person": {
+                                        "type": "object",
+                                        "required": [
+                                            "name"
+                                        ],
+                                        "properties": {
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "email": {
+                                                "type": "string",
+                                                "format": "email"
+                                            }
+                                        }
+                                    },
+                                    "custom": {
+                                        "type": "string",
+                                        "format": "customFormat"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/OkResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/ErrorResponse"
+                    }
+                }
+            }
+        },
+        "/request/body/nullable-oneof": {
+            "post": {
+                "operationId": "testRequestBodyNullableOneOf",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "foo": {
+                                        "oneOf": [
+                                            {
+                                                "type": "string"
+                                            },
+                                            {
+                                                "type": "integer"
+                                            }
+                                        ],
+                                        "nullable": true
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/OkResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/ErrorResponse"
+                    }
+                }
+            }
+        },
+        "/request/body/path/{foo}": {
+            "post": {
+                "operationId": "testRequestBodyPath",
+                "parameters":[
+                    {
+                        "name":"foo",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "in":"path"
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "bar": {
+                                        "type": "integer"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/OkResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/ErrorResponse"
+                    }
+                }
+            }
+        },
+        "/request/body/empty": {
+            "post": {
+                "operationId": "testRequestBody",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required":["foo"],
+                                "properties": {
+                                    "foo": {
+                                        "type": "string"
+                                    },
+                                    "bar": {
+                                        "type": "integer"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/OkResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/ErrorResponse"
+                    }
+                }
+            }
+        },
+        "/request/body/empty/required": {
+            "post": {
+                "operationId": "testRequestBody",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required":["foo"],
+                                "properties": {
+                                    "foo": {
+                                        "type": "string"
+                                    },
+                                    "bar": {
+                                        "type": "integer"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/OkResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/ErrorResponse"
+                    }
+                }
+            }
+        },
+        "/request/empty-object": {
+            "patch": {
+                "operationId": "testRequestBodyEmptyObject",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "metadata": {
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/OkResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/ErrorResponse"
+                    }
+                }
+            }
+        },
+        "/parameters": {
+            "get": {
+                "operationId": "testParameters",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "required": true,
+                        "name": "foo",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "aaa",
+                                "bbb"
+                            ]
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "default",
+                        "schema": {
+                            "type": "integer",
+                            "default": 50
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "boolean",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "list",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "item1",
+                                    "item2"
+                                ]
+                            }
+                        },
+                        "explode": false
+                    },
+                    {
+                        "in": "query",
+                        "name": "listPipe",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "enum": [
+                                    "item1",
+                                    "item2"
+                                ]
+                            }
+                        },
+                        "style": "pipeDelimited"
+                    },
+                    {
+                        "in": "query",
+                        "name": "filter",
+                        "style": "deepObject",
+                        "explode": true,
+                        "schema": {
+                            "type": "object",
+                            "properties":{
+                                "ids":{
+                                    "type":"array",
+                                    "items": {
+                                        "type": "integer"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/OkResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/ErrorResponse"
+                    }
+                }
+            }
+        },
+        "/path/{foo}": {
+            "get": {
+                "operationId": "testPath",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "foo",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "aaa",
+                                "bbb"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/OkResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/ErrorResponse"
+                    }
+                }
+            }
+        },
+        "/missing/format": {
+            "get": {
+                "operationId": "testMissingFormat",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "test",
+                        "schema": {
+                            "type": "string",
+                            "format": "uid"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/OkResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/ErrorResponse"
+                    }
+                }
+            }
+        },
+        "/missing/header": {
+            "get": {
+                "operationId": "testMissingHeader",
+                "responses": {
+                    "200": {
+                        "description": "Ok response",
+                        "headers": {
+                            "X-Response-Id": {
+                                "$ref": "#/components/headers/xResponseId"
+                            },
+                            "X-Response-Id-Not-Required": {
+                                "$ref": "#/components/headers/xResponseIdNotRequired"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "ok": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/response/example": {
+            "get": {
+                "operationId": "testResponseExample",
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "foo": {
+                                            "type": "string"
+                                        },
+                                        "bar": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                },
+                                "example": {
+                                    "foo": "test",
+                                    "bar": 100,
+                                    "extra": "-"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/ErrorResponse"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "testResponseExamplePost",
+                "responses": {
+                    "201": {
+                        "description": "Ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "foo": {
+                                            "type": "string"
+                                        },
+                                        "bar": {
+                                            "type": "integer"
+                                        }
+                                    }
+                                },
+                                "example": {
+                                    "foo": "test",
+                                    "bar": 100
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/ErrorResponse"
+                    }
+                }
+            }
+        },
+        "/response/example/list": {
+            "get": {
+                "operationId": "testResponseExampleList",
+                "responses": {
+                    "200": {
+                        "description": "Ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "foo": {
+                                                "type": "string"
+                                            },
+                                            "bar": {
+                                                "type": "integer"
+                                            }
+                                        }
+                                    }
+                                },
+                                "example": [
+                                    {
+                                        "foo": "test",
+                                        "bar": 100,
+                                        "extra": "-"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/ErrorResponse"
+                    }
+                }
+            }
+        },
+        "/formats": {
+            "get": {
+                "operationId": "testDifferentFormats",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "string",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "integer",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "email",
+                        "schema": {
+                            "type": "string",
+                            "format": "email"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "phone",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^\\+[1-9]\\d{1,14}$"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "country-code",
+                        "schema": {
+                            "type": "string",
+                            "format": "country-code"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "ends-with",
+                        "schema": {
+                            "type": "string",
+                            "format": "ends-with('@gmail.com')"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "between",
+                        "schema": {
+                            "type": "integer",
+                            "format": "between(10, 20)"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "customFormat",
+                        "schema": {
+                            "type": "string",
+                            "format": "customFormat"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "date",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/OkResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/ErrorResponse"
+                    }
+                }
+            }
+        },
+        "/upload": {
+            "post": {
+                "operationId": "testFileUpload",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "integer"
+                                    },
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                }
+                            },
+                            "encoding": {
+                                "file": {
+                                    "contentType": "text/plain, image/jpeg"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/OkResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/ErrorResponse"
+                    }
+                }
+            }
+        },
+        "/form-data": {
+            "post": {
+                "operationId": "testBaseForm",
+                "requestBody": {
+                    "content": {
+                        "application/x-www-form-urlencoded": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "properties": {
+                                    "id": {
+                                        "type": "integer"
+                                    },
+                                    "text": {
+                                        "type": "string"
+                                    },
+                                    "array": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "additionalProperties": false,
+                                            "properties": {
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "value": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": ["name", "value"]
+                                        },
+                                        "minItems": 2
+                                    },
+                                    "object": {
+                                        "type": "object",
+                                        "additionalProperties": false,
+                                        "properties": {
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "value": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": ["name", "value"]
+                                    }
+                                },
+                                "required": ["id", "text", "array", "object"]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/OkResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/ErrorResponse"
+                    }
+                }
+            }
+        },
+        "/path/{foo}/path/{bar}": {
+            "get": {
+                "operationId": "pathParamTest",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "foo",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "path",
+                        "name": "bar",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/OkResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/ErrorResponse"
+                    }
+                }
+            }
+        },
+        "/all/of": {
+            "put": {
+                "operationId": "updateStudentById",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type":"object",
+                                "properties":{
+                                    "data":{
+                                        "$ref": "#/components/schemas/Student"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/OkResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/ErrorResponse"
+                    }
+                }
+            }
+        },
+        "/response/nullable": {
+            "get": {
+                "operationId": "getNullableResponse",
+                "responses": {
+                    "200": {
+                        "description": "Test for nullable type",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "ok": {
+                                            "type": "boolean",
+                                            "nullable": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/additionalProperties": {
+            "post": {
+                "operationId": "postAdditionalProperties",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "foo": {
+                                        "type": "object",
+                                        "properties": {
+                                            "bar": {
+                                                "type": "integer",
+                                                "description": "A number"
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/OkResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/ErrorResponse"
+                    }
+                }
+            }
+        },
+        "/additionalProperties/hashmap/string": {
+            "post": {
+                "operationId": "postAdditionalProperties",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type":"string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/OkResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/ErrorResponse"
+                    }
+                }
+            }
+        },
+        "/additionalProperties/hashmap/object": {
+            "post": {
+                "operationId": "postAdditionalProperties",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type":"object",
+                                    "required":["id"],
+                                    "properties":{
+                                        "id":{
+                                            "type":"integer"
+                                        },
+                                        "foo":{
+                                            "type":"integer"
+                                        },
+                                        "bar":{
+                                            "type":"string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/OkResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/ErrorResponse"
+                    }
+                }
+            }
+        },
+        "/response/any-of": {
+            "get": {
+                "operationId": "getAnyOf",
+                "responses": {
+                    "200": {
+                        "description": "Test for nullable type",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "value": {
+                                            "anyOf": [
+                                                {"type": "string"},
+                                                {"type":  "integer"}
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/headers": {
+            "get": {
+                "operationId": "testHeaders",
+                "parameters": [
+                    {
+                        "in": "header",
+                        "schema": {
+                            "type": "string",
+                            "pattern": "^[A-Z]{3}$"
+                        },
+                        "required": true,
+                        "name": "X-Required"
+                    },
+                    {
+                        "in": "header",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": false,
+                        "name": "X-Optional"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "$ref": "#/components/responses/OkResponse"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/ErrorResponse"
+                    }
+                }
+            }
+        }
+    }
+}
