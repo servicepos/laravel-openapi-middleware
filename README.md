@@ -1,3 +1,6 @@
+> [!IMPORTANT]
+> This is a heavily modified fork of [hkarlstrom/openapi-validation-middleware](https://github.com/hkarlstrom/openapi-validation-middleware) where we reworte it to be a laravel only middleware, such that it can be used in a laravel project without the need for any psr-15 bridge libraries. The tests have been rewritten with Pest.
+
 # OpenAPI Validation Middleware for Laravel
 
 Laravel [OpenAPI](https://www.openapis.org/) Validation Middleware
@@ -65,18 +68,6 @@ $middleware = new \C1st\Middleware\OpenApiValidation('/path/to/openapi.json', [
 ]);
 ```
 
-### Options
-
-The options array is passed to the middleware when it's constructed.
-
-```php
-$app = new Slim\App;
-$app->add(new C1st\Middleware\OpenApiValidation('/path/to/openapi.json'),[
-    'additionalParameters' => true,
-    'stripResponse' => true
-]);
-```
-
 
 | type                       | format    | default | description |
 | -------------------------- | --------- | ------- | --- |
@@ -122,20 +113,6 @@ $options = [
 ];
 ```
 
-#### validateSecurity
-If defined, the callback can return \Illuminate\Http\Response or \Illuminate\Http\JsonResponse if the operation is not allowed. `$type` can be `none`, `http` or `apiKey`.
-
-```php
-$options = [
-    'validateSecurity' => function (\Illuminate\Http\Request $request, string $type, string $token = '', ?array $scopes) : ?\Illuminate\Http\JsonResponse {
-        // if user is authorized
-        return null;
-
-        // create and return error response
-        return response()->json(['error' => 'Unauthorized'], 401);
-    }
-];
-```
 
 ## Formats
 
