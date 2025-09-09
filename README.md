@@ -19,7 +19,7 @@ All testing has been done using Laravel Framework. The tests are done with a ope
 
 It's recommended that you use [Composer](https://getcomposer.org/download) to install.
 ```shell
-composer require servicepos/laravel-openapi-middleware
+composer require c1st/laravel-openapi-middleware
 ```
 
 Use [Swagger/OpenAPI CLI](https://www.npmjs.com/package/swagger-cli) to validate openapi.json/openapi.yaml file, as the middleware assumes it to be valid.
