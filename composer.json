@@ -11,8 +11,8 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Alexander Koch",
-            "email": "alk@c1st.com"
+            "name": "C 1ST Aps",
+            "email": "api@c1st.com"
         }
     ],
     "require": {
@@ -38,8 +38,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "C1st\\Middleware\\OpenApiValidation\\": "tests",
-            "Tests\\Laravel\\": "tests/Laravel"
+            "C1st\\Middleware\\OpenApiValidation\\": "tests"
         }
     },
     "config": {
