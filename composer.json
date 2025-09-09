@@ -1,5 +1,5 @@
 {
-    "name": "servicepos/laravel-openapi-middleware",
+    "name": "c1st/laravel-openapi-middleware",
     "type": "library",
     "description": "Laravel OpenAPI Validation Middleware",
     "keywords": [
