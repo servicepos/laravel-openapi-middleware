@@ -1,5 +1,5 @@
 > [!IMPORTANT]
-> This is a heavily modified fork of [hkarlstrom/openapi-validation-middleware](https://github.com/hkarlstrom/openapi-validation-middleware) where we rewrote it to be a laravel only middleware, such that it can be used in a laravel project without the need for any psr-15 bridge libraries. The tests have been rewritten with Pest.
+> This is a heavily modified fork of [hkarlstrom/openapi-validation-middleware](https://github.com/hkarlstrom/openapi-validation-middleware). It has been rewritten to be a laravel only middleware, such that it can be used in laravel projects without the need for any nasty psr-15 bridge libraries. The tests have been rewritten with Pest for better readablity.
 
 # OpenAPI Validation Middleware for Laravel
 
