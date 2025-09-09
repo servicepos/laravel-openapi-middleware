@@ -139,12 +139,12 @@ class OpenApiValidation
 
         if ($this->options['validateResponse']
             && $errors = $this->validateResponseBody($response, $path, $method)) {
-            return $this->error(500, 'Response validation failed', $errors);
+            return $this->error(400, 'Response validation failed', $errors);
         }
 
         if ($this->options['validateResponseHeaders']
             && $errors = $this->validateResponseHeaders($response, $path, $method)) {
-            return $this->error(500, 'Response validation failed', $errors);
+            return $this->error(400, 'Response validation failed', $errors);
         }
 
         return $response;

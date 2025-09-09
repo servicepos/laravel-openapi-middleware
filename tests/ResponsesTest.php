@@ -69,7 +69,7 @@ test('response missed header', function () {
             'validateResponseHeaders' => true,
         ],
     ]);
-    expect($response->getStatusCode())->toBe(500);
+    expect($response->getStatusCode())->toBe(400);
     $error = json($response)['errors'][0];
     expect($error['name'])->toBe('X-Response-Id');
     expect($error['code'])->toBe('error_required');
@@ -87,7 +87,7 @@ test('response invalid header format', function () {
                 ->header('Content-type', 'application/json');
         },
     ]);
-    expect($response->getStatusCode())->toBe(500);
+    expect($response->getStatusCode())->toBe(400);
     $error = json($response)['errors'][0];
     expect($error['name'])->toBe('X-Response-Id');
     expect($error['code'])->toBe('error_type');
