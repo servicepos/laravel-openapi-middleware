@@ -447,7 +447,7 @@ class OpenApiValidation
                 continue;
             }
             try {
-                $value  = is_scalar($property->value) || is_null($property->value)
+                $value  = is_scalar($property->value)
                     ? $property->value
                     : json_decode(json_encode($property->value, JSON_PRESERVE_ZERO_FRACTION));
                 $result = $this->validator->validate($value, $property->schema);
