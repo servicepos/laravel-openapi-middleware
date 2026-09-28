@@ -47,6 +47,13 @@ class OpenApiValidation
     /** @var FormatResolver */
     private $formatResolver;
 
+    /** @var array<string, \stdClass> Schema object cache keyed by md5 of raw schema */
+    private static array $jsonSchemaObjectCache = [];
+    /** @var array<string, array> Schema array cache keyed by md5 of raw schema */
+    private static array $jsonSchemaArrayCache = [];
+    /** @var array<string, array> Cached getFormats() results keyed by schema hash */
+    private static array $schemaFormatsCache = [];
+
     /**
      * @param string|array $schema
      * @param array        $options
@@ -207,16 +214,18 @@ class OpenApiValidation
 
         // https://swagger.io/specification/#responseObject
         // - If a response header is defined with the name "Content-Type", it SHALL be ignored.
-        $normalizedHeaderNamesInSpecification = [];
+        // Build a normalised map of spec headers (lowercase name => ['name' => original, 'header' => obj])
+        // in one pass, avoiding repeated mb_strtolower calls on the same names later.
+        $normSpecHeaders = [];
         foreach ($headersSpecifications as $headerName => $header) {
-            $normalizedHeaderNamesInSpecification[] = mb_strtolower($headerName);
+            $normSpecHeaders[mb_strtolower($headerName)] = ['name' => $headerName, 'header' => $header];
         }
 
         // If stripResponseHeaders is true, remove additional headers
         if ($this->options['stripResponseHeaders']) {
             foreach ($responseHeaders as $headerName => $headerValue) {
                 $normalizedHeaderName = mb_strtolower($headerName);
-                if ('content-type' != $normalizedHeaderName && ! in_array($normalizedHeaderName, $normalizedHeaderNamesInSpecification)) {
+                if ('content-type' != $normalizedHeaderName && ! isset($normSpecHeaders[$normalizedHeaderName])) {
                     $response->headers->remove($headerName);
                 }
             }
@@ -236,10 +245,8 @@ class OpenApiValidation
             }
         }
         $properties = [];
-        foreach ($headersSpecifications as $headerName => $header) {
-            if (is_string($headerName)) {
-                $properties[] = Property::fromHeader($headerName, $header, $normalizedResponseHeaders[mb_strtolower($headerName)] ?? null);
-            }
+        foreach ($normSpecHeaders as $normHeaderName => $entry) {
+            $properties[] = Property::fromHeader($entry['name'], $entry['header'], $normalizedResponseHeaders[$normHeaderName] ?? null);
         }
         return $this->validateProperties($properties);
     }
@@ -440,7 +447,9 @@ class OpenApiValidation
                 continue;
             }
             try {
-                $value  = json_decode(json_encode($property->value, JSON_PRESERVE_ZERO_FRACTION));
+                $value  = is_scalar($property->value)
+                    ? $property->value
+                    : json_decode(json_encode($property->value, JSON_PRESERVE_ZERO_FRACTION));
                 $result = $this->validator->validate($value, $property->schema);
             } catch (Exception $e) {
             }
@@ -473,16 +482,24 @@ class OpenApiValidation
 
     private function validateObject(array $schema, string $value): array
     {
-        $errors = [];
-        foreach (SchemaHelper::getFormats($schema) as $f) {
+        $errors   = [];
+        $cacheKey = md5(json_encode($schema));
+
+        if (!isset(self::$schemaFormatsCache[$cacheKey])) {
+            self::$schemaFormatsCache[$cacheKey] = SchemaHelper::getFormats($schema);
+        }
+        foreach (self::$schemaFormatsCache[$cacheKey] as $f) {
             $this->checkFormat($f['type'], $f['format']);
         }
 
-        $schema = SchemaHelper::openApiToJsonSchema($schema);
+        if (!isset(self::$jsonSchemaObjectCache[$cacheKey])) {
+            $converted = SchemaHelper::openApiToJsonSchema($schema);
+            self::$jsonSchemaObjectCache[$cacheKey] = json_decode(json_encode($converted, JSON_PRESERVE_ZERO_FRACTION));
+        }
+
         try {
             $value  = json_decode($value);
-            $schema = json_decode(json_encode($schema, JSON_PRESERVE_ZERO_FRACTION));
-            $result = $this->validator->validate($value, $schema, );
+            $result = $this->validator->validate($value, self::$jsonSchemaObjectCache[$cacheKey]);
         } catch (Exception $e) {
             return [[
                 'name'    => 'server',
@@ -502,7 +519,11 @@ class OpenApiValidation
         $formData      = $request->all();
         $properties    = [];
         $uploadedFiles = $request->allFiles();
-        $schema        = SchemaHelper::openApiToJsonSchema($schema);
+        $cacheKey      = md5(json_encode($schema));
+        if (!isset(self::$jsonSchemaArrayCache[$cacheKey])) {
+            self::$jsonSchemaArrayCache[$cacheKey] = SchemaHelper::openApiToJsonSchema($schema);
+        }
+        $schema = self::$jsonSchemaArrayCache[$cacheKey];
         foreach ($schema['properties'] as $name => $property) {
             if (isset($property['format']) && in_array($property['format'], ['binary', 'base64'])) {
                 if (in_array($name, $schema['required'] ?? []) && ! isset($uploadedFiles[$name])) {
@@ -539,11 +560,11 @@ class OpenApiValidation
         $errors  = [];
         $defined = ['path' => [], 'query' => [], 'header' => [], 'cookie' => []];
         foreach ($parameters as $p) {
-            $defined[$p->in][] = $p->name;
+            $defined[$p->in][$p->name] = true;
         }
         foreach ($values as $in => $map) {
             foreach ($map as $name => $value) {
-                if (! in_array($name, $defined[$in])) {
+                if (! isset($defined[$in][$name])) {
                     $errors[] = [
                         'name' => $name,
                         'code' => 'error_additional',

@@ -55,17 +55,14 @@ class Schema
             'iri-reference',
         ];
         $formats  = [];
-        $callback = function (array $object, array &$formats) use (&$callback, $excluded) {
+        $seen     = [];
+        $callback = function (array $object, array &$formats) use (&$callback, &$seen, $excluded) {
             $type   = $object['type']   ?? null;
             $format = $object['format'] ?? null;
             if (null !== $format && ('string' != $type || !in_array($format, $excluded))) {
-                $found = false;
-                foreach ($formats as $f) {
-                    if ($f['type'] == $type && $f['format'] == $format) {
-                        $found = true;
-                    }
-                }
-                if (!$found) {
+                $seenKey = ($type ?? '') . ':' . $format;
+                if (!isset($seen[$seenKey])) {
+                    $seen[$seenKey] = true;
                     $formats[] = [
                         'type'   => $object['type'],
                         'format' => $object['format'],
