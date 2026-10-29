@@ -22,11 +22,11 @@
         "hkarlstrom/openapi-reader": "^0.5",
         "opis/json-schema": "^2.3",
         "respect/validation": "^1.1",
-        "illuminate/http": "^9.0|^10.0|^11.0|^12.0",
-        "illuminate/support": "^9.0|^10.0|^11.0|^12.0"
+        "illuminate/http": "^9.0|^10.0|^11.0|^12.0|^13.0",
+        "illuminate/support": "^9.0|^10.0|^11.0|^12.0|^13.0"
     },
     "require-dev": {
-        "laravel/framework": "^9.0|^10.0|^11.0|^12.0",
+        "laravel/framework": "^9.0|^10.0|^11.0|^12.0|^13.0",
         "orchestra/testbench": "^7.0|^8.0|^9.0",
         "pestphp/pest": "^2.36",
         "phpstan/phpstan": "^1.0"
